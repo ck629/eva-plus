@@ -1,4 +1,4 @@
-import os, sys
+﻿import os, sys
 import re
 import json
 import subprocess
@@ -727,6 +727,7 @@ def agent_single_loop():
                 messages.append({"role": "user", "content": "警告：你的一条消息因为在think中输出了大量重复内容，已被擦除。请继续完成任务，严禁在think中陷入循环！"})
                 continue
             LAST_USAGE = usage
+            msg_idx = len(messages)
             messages.append(msg)
 
             # 流式输出已经实时打印了内容，这里只需换行
@@ -760,6 +761,15 @@ def agent_single_loop():
                     print("\n\n工具调用已中断，退出 agent_single_loop，回到用户 turn")
                     result = "用户中止该工具运行"
                     break_loop = True
+                except json.JSONDecodeError as e:
+                    del messages[msg_idx:]
+                    messages.append({
+                        "role": "user",
+                        "content": f"警告：你上一次的工具调用参数不是合法的 JSON 字符串，"
+                                   f"具体错误：{str(e)}。该次工具调用已被删除，"
+                                   f"请重新以正确的 JSON 格式调用工具。"
+                    })
+                    break
                 except Exception as e:
                     result = f"工具执行异常：{str(e)}"
 
