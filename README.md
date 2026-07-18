@@ -120,7 +120,7 @@ options:
 
 ## 关于 EVA.md
 
-`.eva/EVA.md`是EVA的设定，通过它你可以对EVA进行各种设定、甚至赋予它各种技能。除了手动编辑`EVA.md`，你可以在eva启动时让它“分析下xxx/xxx/skills目录中的可用技能，提炼线索到EVA.md中” 或者 “分析下skillhub上的xxx技能，提炼线索到EVA.md中”，然后重启eva即可  —— **EVA的事情EVA自己做 🤖🤖**\
+`.eva/EVA.md`是EVA的设定，通过它你可以对EVA进行各种设定、甚至赋予它各种技能。除了手动编辑`EVA.md`，你可以在eva启动时让它“分析下xxx/xxx/skills目录中的可用技能，提炼线索到EVA.md中” 或者 “分析下skillhub上的xxx技能，提炼线索到EVA.md中”，然后重启eva即可  —— **EVA的事情EVA自己做 🤖🤖**
 
 ## 贡献者 ✨
 
