@@ -120,17 +120,7 @@ options:
 
 ## 关于 EVA.md
 
-`.eva/EVA.md`是EVA的设定，通过它你可以对EVA进行各种设定、甚至赋予它各种技能。除了手动编辑`EVA.md`，你可以在eva启动时让它“分析下xxx/xxx/skills目录中的可用技能，提炼线索到EVA.md中” 或者 “分析下skillhub上的xxx技能，提炼线索到EVA.md中”，然后重启eva即可  —— **EVA的事情EVA自己做 🤖🤖**
-
-## Star记录
-
-<a href="https://www.star-history.com/?repos=usepr%2Feva&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=usepr/eva&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=usepr/eva&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=usepr/eva&type=date&legend=top-left" />
- </picture>
-</a>
+`.eva/EVA.md`是EVA的设定，通过它你可以对EVA进行各种设定、甚至赋予它各种技能。除了手动编辑`EVA.md`，你可以在eva启动时让它“分析下xxx/xxx/skills目录中的可用技能，提炼线索到EVA.md中” 或者 “分析下skillhub上的xxx技能，提炼线索到EVA.md中”，然后重启eva即可  —— **EVA的事情EVA自己做 🤖🤖**\
 
 ## 贡献者 ✨
 
