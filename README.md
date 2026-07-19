@@ -95,8 +95,6 @@ $env:EVA_API_KEY="sk-xxxxx"
 
 - 如果环境里安装了`prompt_toolkit`，EVA会自动开启多行输入：`Enter`提交，`Ctrl+N`换行；如果终端支持，也可以用`Alt+Enter`换行
 
-macOS 分支说明：`eva-mac`分支保留原有单文件、命令行参数、Session、安全审查和工具调用行为，只增加 macOS 平台识别、zsh 启动脚本、macOS 环境探针、锁文件兼容和 macOS 命令提示，避免将 macOS 误判为 Linux。
-
 ```python
 eva支持的选项：
 usage: eva.py [-h] [-a] [-l] [-c] [-u USER_ASK] [-s] [--until UNTIL]
@@ -111,6 +109,8 @@ options:
   -s, --with-session    搭配-u使用，载入并保存session
   --until UNTIL         搭配-u使用，设定任务达成条件，子串匹配
 ```
+
+绝大部分同学都带上-a来启动eva，虽然很方便，但要对eva行为多加关注下。
 
 ## EVA退出说明（按Ctrl + C）
 
