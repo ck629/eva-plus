@@ -97,7 +97,7 @@ $env:EVA_API_KEY="sk-xxxxx"
 
 ```python
 eva支持的选项：
-usage: eva.py [-h] [-a] [-l] [-c] [-u USER_ASK] [-s] [--until UNTIL]
+usage: eva.py [-h] [-a] [-l] [-c] [-u USER_ASK] [-s] [-g]
 
 options:
   -h, --help            show this help message and exit
@@ -107,7 +107,7 @@ options:
   -u USER_ASK, --user-ask USER_ASK
                         独立地针对一条用户提问执行EVA
   -s, --with-session    搭配-u使用，载入并保存session
-  --until UNTIL         搭配-u使用，设定任务达成条件，子串匹配
+  -g, --goal            goal模式，循环直到达成目标
 ```
 
 绝大部分同学都带上-a来启动eva，虽然很方便，但要对eva行为多加关注下。
