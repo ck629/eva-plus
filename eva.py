@@ -688,7 +688,7 @@ def list_sessions():
     for i, f in enumerate(sorted(files), start=1):
         path = os.path.join(SESSION_DIR, f)
         size_KB = (os.path.getsize(path) + 999) // 1000
-        marker = "    <=== 当前目录" if f == session_name else ""
+        marker = "    <============ 当前目录" if f == session_name else ""
         print(f"  {i}. {f} ({format(size_KB, ',')} KB){marker}")
     print("-" * 60)
 
