@@ -813,12 +813,13 @@ def agent_single_loop():
             break
 
 # ====================== 主循环 ======================
-def human_loop(user_ask=None, save_after=False, until=""):
+def human_loop(user_ask=None, save_after=False, goal=False):
     global messages
 
+    GOAL_MARKER = "__TASK_FINISHED__"
     if user_ask:
-        if until:
-            user_ask = f"{user_ask}\n----系统提醒！注意，人类已经离开，这将是一个无人类参与的任务，你需要自行判断任务是否完成。确认任务到达完成状态达到后你需要输出字符串：{until}。如果未输出，系统会提示你继续完成任务----"
+        if goal:
+            user_ask = f"{user_ask}\n----系统提醒！注意，人类已经离开，这将是一个无人类参与的任务，你需要自行判断任务是否完成。确认任务到达完成状态达到后你需要输出字符串：{GOAL_MARKER}。如果未输出，系统会提示你继续完成任务----"
         print(f"[-] You: {user_ask}\n")
         messages.append({"role": "user", "content": clean_input(user_ask)})
 
@@ -829,11 +830,11 @@ def human_loop(user_ask=None, save_after=False, until=""):
                 while True:
                     agent_single_loop()
                     msg = messages[-1]
-                    if not until or (msg.get('role') == 'assistant' and until in msg.get('content', '')):
+                    if not goal or (msg.get('role') == 'assistant' and GOAL_MARKER in msg.get('content', '')):
                         break
                     if msg.get('role') == 'tool' and '用户中止该工具运行' in msg.get('content', ''):
                         break
-                    messages.append({"role": "user", "content": f"系统提醒！未检测到停止字符串：{until}，请继续完成任务"})
+                    messages.append({"role": "user", "content": f"系统提醒！未检测到停止字符串：{GOAL_MARKER}，请继续完成任务"})
 
                 if save_after:
                     save_session(messages)
@@ -902,8 +903,8 @@ def main():
                         help="独立地针对一条用户提问执行EVA")
     parser.add_argument("-s", "--with-session", action="store_true",
                         help="搭配-u使用，载入并保存session")
-    parser.add_argument("--until", type=str,
-                        help="搭配-u使用，设定任务达成条件，子串匹配")                  
+    parser.add_argument("-g", "--goal", action="store_true",
+                        help="goal模式，循环直到达成目标")
     args = parser.parse_args()
 
     ALLOW_ALL_CLI = args.allow_all
@@ -934,7 +935,7 @@ def main():
         if loaded_messages is not None:
             messages = loaded_messages
 
-    human_loop(args.user_ask, save_after=args.with_session, until=args.until or "")
+    human_loop(args.user_ask, save_after=args.with_session, goal=args.goal)
 
 if __name__ == "__main__":
     main()
