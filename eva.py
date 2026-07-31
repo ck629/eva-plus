@@ -17,6 +17,9 @@ try:
 except ImportError:
     HAS_PROMPT_TOOLKIT = False
 
+if hasattr(sys.stdout, "reconfigure"):
+      sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 _resolved = Path(__file__).resolve()
 this_file = str(_resolved)
 this_dir = _resolved.parent
@@ -570,9 +573,6 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
                         tc_entry['function']['name'] += func_delta['name']
                     if func_delta.get('arguments'):
                         tc_entry['function']['arguments'] += func_delta['arguments']
-
-        if is_thinking:
-            sys.stdout.write('\033[0m\n')
     finally:
         resp.close()
         if is_thinking:
@@ -583,7 +583,7 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
     full_content = ''.join(content_parts)
     message = {
         'role': role,
-        'content': full_content or None
+        'content': full_content
     }
     if reasoning_parts:
         message['reasoning_content'] = ''.join(reasoning_parts)
