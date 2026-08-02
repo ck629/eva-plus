@@ -95,6 +95,10 @@ $env:EVA_API_KEY="sk-xxxxx"
 
 - 如果环境里安装了`prompt_toolkit`，EVA会自动开启多行输入：`Enter`提交，`Ctrl+N`换行；如果终端支持，也可以用`Alt+Enter`换行
 
+输出增强说明：
+
+- 如果环境里安装了`rich`，EVA会自动开启rich美化输出
+
 ```python
 eva支持的选项：
 usage: eva.py [-h] [-a] [-l] [-c] [-u USER_ASK] [-s] [-g]

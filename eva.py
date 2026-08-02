@@ -17,6 +17,40 @@ try:
 except ImportError:
     HAS_PROMPT_TOOLKIT = False
 
+# 尝试导入 rich：有则美化think与LLM返回输出，无则保持零依赖
+try:
+    from rich.console import Console
+    from rich.markdown import Markdown
+    HAS_RICH = True
+    RICH_CONSOLE = Console()
+except ImportError:
+    HAS_RICH = False
+    RICH_CONSOLE = None
+    Markdown = None
+
+def _stream_write(text: str, style=None):
+    """流式输出：rich可用时美化输出，无则退化为普通stdout"""
+    if HAS_RICH:
+        RICH_CONSOLE.print(text, style=style, end="")
+    else:
+        sys.stdout.write(text)
+        sys.stdout.flush()
+
+def _think_start():
+    """开始think打印（暗色）"""
+    if HAS_RICH:
+        RICH_CONSOLE.print("💭 ", style="dim italic", end="")
+    else:
+        sys.stdout.write("\033[2m💭 ")
+
+def _think_end():
+    """结束think打印，恢复正文"""
+    if HAS_RICH:
+        RICH_CONSOLE.print("")
+    else:
+        sys.stdout.write("\033[0m\n")
+        sys.stdout.flush()
+
 if hasattr(sys.stdout, "reconfigure"):
       sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -499,7 +533,12 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
     usage = None
     role = "assistant"
     is_thinking = False
-    
+
+    # 正文模式：rich可用且为终端时，缓冲到结束一次性Markdown渲染（表格对齐，不污染滚动缓冲）；
+    # 否则逐块流式输出
+    buffer_mode = HAS_RICH and RICH_CONSOLE.is_terminal
+    had_think = False
+
     detector = RepeatSuffixChecker(min_unit_len=400)
 
     try:
@@ -535,11 +574,11 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
             # ---- reasoning / thinking 内容 ----
             reasoning_content = delta.get('reasoning_content') or delta.get('reasoning') or ''
             if reasoning_content:
+                had_think = True
                 if not is_thinking:
                     is_thinking = True
-                    sys.stdout.write('\033[2m💭 ')  # 暗色显示思考过程
-                sys.stdout.write(reasoning_content)
-                sys.stdout.flush()
+                    _think_start()  # 暗色显示思考过程
+                _stream_write(reasoning_content, style="dim italic")  # rich下每个print独立，需逐段带样式
                 reasoning_parts.append(reasoning_content)
                 for c in reasoning_content:
                     if detector.add_char(c):
@@ -550,10 +589,10 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
             if text:
                 if is_thinking:
                     is_thinking = False
-                    sys.stdout.write('\033[0m\n')  # 结束暗色
-                sys.stdout.write(text)
-                sys.stdout.flush()
+                    _think_end()  # 结束暗色
                 content_parts.append(text)
+                if not buffer_mode:  # 非rich终端环境：逐块流式
+                    _stream_write(text)
 
             # ---- tool_calls 增量 ----
             if 'tool_calls' in delta and delta['tool_calls']:
@@ -576,8 +615,11 @@ def llm_chat_stream(messages, tools=None, temperature=0.6, thinking=True):
     finally:
         resp.close()
         if is_thinking:
-            sys.stdout.write('\033[0m\n')
-            sys.stdout.flush()
+            _think_end()
+        if buffer_mode and content_parts:
+            if not had_think:  # 无think时先换行，避免正文贴在 [*] EVA: 后
+                RICH_CONSOLE.print()
+            RICH_CONSOLE.print(Markdown(''.join(content_parts)))  # 一次性渲染，表格自动对齐
 
     # 组装最终 message（与非流式返回格式一致）
     full_content = ''.join(content_parts)
