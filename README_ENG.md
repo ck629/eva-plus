@@ -1,13 +1,13 @@
 # EVA
 
-**EVA is a compact, single-file Python agent for command-line work.** It can use an OpenAI-compatible LLM endpoint to help with tasks such as writing scripts, running commands, analysing data, and working within the current project directory.
+**EVA is a compact, single-file Python agent for command-line work.** It can use an OpenAI-compatible LLM endpoint to help with tasks such as writing scripts, running commands, analysing data, and working with code.
 
-EVA keeps a conversation session for each working directory and asks for approval before running commands that its safety review does not classify as read-only. It can use a hosted API or a compatible local endpoint.
+EVA keeps a conversation session for each working directory and asks for approval before running commands that its safety review does not classify as read-only. It can use a hosted API or a compatible local model.
 
 > [!WARNING]
-> EVA can run shell commands in your current working directory. Review every command before approving it. The `--allow-all` option disables the approval step and should only be used in an environment you understand and trust.
+> EVA can run shell commands in your current working directory. Review every command before approving it. The `--allow-all` option disables the approval step and should only be used in an environment you fully control.
 
-The original Chinese documentation is available in [README.md](./README.md).
+[🇨🇳 中文](./README.md) · The original Chinese documentation is available in [README.md](./README.md).
 
 ## Requirements
 
@@ -21,7 +21,7 @@ EVA checks the model list during startup, so `EVA_API_KEY`, `EVA_BASE_URL`, and 
 
 ### Current language limitation
 
-EVA's built-in system prompts, command-review prompt, terminal messages, and error messages are currently written in Chinese. A multilingual model can run EVA, but it may answer in Chinese even when you write in English. This English README makes setup accessible; it does not localize EVA's runtime behavior.
+EVA's built-in system prompts, command-review prompt, terminal messages, and error messages are currently written in Chinese. A multilingual model can run EVA, but it may answer in Chinese even when prompted in English.
 
 Optional enhancements:
 
@@ -41,7 +41,7 @@ git clone https://github.com/usepr/eva.git
 cd eva
 ```
 
-Configure an OpenAI-compatible provider. Replace the placeholder values with the endpoint, model ID, and API key that you intend to use. `EVA_BASE_URL` should be the API base path without a trailing slash; for example, an OpenAI-compatible endpoint commonly ends in `/v1`.
+Configure an OpenAI-compatible provider. Replace the placeholder values with the endpoint, model ID, and API key that you intend to use. `EVA_BASE_URL` should be the API base path without a trailing slash.
 
 ### Linux and macOS
 
@@ -83,7 +83,7 @@ python3 eva.py
 
 Provider model IDs can change. If EVA says that it cannot find the configured model, choose an exact ID from the model list printed by EVA and set `EVA_MODEL_NAME` again.
 
-On Linux and macOS, the first normal EVA launch automatically creates the `~/.local/bin/eva` launcher and adds `~/.local/bin` to `PATH` in `~/.bashrc` (Linux) or `~/.zshrc` (macOS). Run the command EVA prints, normally one of these, before using the launcher in the current terminal:
+On Linux and macOS, the first normal EVA launch automatically creates the `~/.local/bin/eva` launcher and adds `~/.local/bin` to `PATH` in `~/.bashrc` (Linux) or `~/.zshrc` (macOS). Run the command shown after the first launch:
 
 ```bash
 source ~/.bashrc  # Linux
@@ -129,7 +129,7 @@ Sessions are named from the working-directory path, so starting EVA from a diffe
 python3 eva.py
 ```
 
-Enter a request at the `[-] You:` prompt. EVA may call `run_cli` to inspect or act on the current working directory. By default, it uses a second model request to review commands; commands that are not classified as read-only require your approval.
+Enter a request at the `[-] You:` prompt. EVA may call `run_cli` to inspect or act on the current working directory. By default, it uses a second model request to review commands; commands that are not classified as read-only require approval before execution.
 
 Press `Ctrl+C` to interrupt EVA, a model response, or a running tool call. Interactive sessions are saved when interrupted.
 
@@ -186,7 +186,7 @@ python3 eva.py --clear-session
 
 ## Troubleshooting
 
-### “EVA_API_KEY environment variable is not set”
+### "EVA_API_KEY environment variable is not set"
 
 Set `EVA_API_KEY` in the same terminal session before launching EVA. EVA exits immediately if this variable is missing.
 
@@ -204,7 +204,7 @@ Confirm that the provider accepts the key as a bearer token and that the key can
 
 ### EVA says another instance is already running
 
-EVA uses a lock file for the current directory's session. First make sure no other EVA process is still running for that directory. If it is not, remove the stale `.lock` file from the `sessions/` directory in `EVA_HOME`.
+EVA uses a lock file for the current directory's session. First make sure no other EVA process is still running for that directory. If it is not, remove the stale `.lock` file from the `sessions/` directory.
 
 ### The `eva` command is not found on Linux or macOS
 
@@ -222,4 +222,3 @@ python3 -m py_compile eva.py
 ## Contributing
 
 Contributions are welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for the project's design principles and contribution ideas.
-
