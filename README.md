@@ -32,7 +32,7 @@
   <a href="./showcase"><strong>Showcase</strong></a> ·
   <a href="./showcase/wechat-bot/README.md"><strong>WeChat Bot</strong></a> ·
   <a href="#关于-evamd"><strong>EVA.md</strong></a> ·
-  <a href="./README_ENG.md"><strong>🇬🇧 English</strong></a>
+  <a href="./README_ENG.md"><strong>English readme</strong></a>
 </p>
 
 ## 简介
@@ -66,7 +66,7 @@ export EVA_MODEL_NAME=xxxxx
 export EVA_API_KEY=sk-xxxxx
 ```
 
-macOS 设置方法（zsh，如需在 macOS 上长期生效，可以将上述 export 配置写入`~/.zshrc`。）：
+macOS 设置方法（zsh，如需在 macOS 上长期生效，可以将上述 export 配置写入`~/.zshrc`）：
 
 ```bash
 export EVA_BASE_URL=http://xxxxxxxxx/v1
