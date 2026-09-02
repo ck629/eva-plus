@@ -41,7 +41,31 @@ git clone https://github.com/usepr/eva.git
 cd eva
 ```
 
-Configure an OpenAI-compatible provider. Replace the placeholder values with the endpoint, model ID, and API key that you intend to use. `EVA_BASE_URL` should be the API base path without a trailing slash.
+EVA accepts its API settings in three ways. `EVA_BASE_URL` should be the API base path; a trailing slash is stripped automatically.
+
+**Option A — write them into `eva.py` (recommended: configure once, no per-shell setup).** Edit `MY_EVA_CONFIG` near the top of `eva.py`:
+
+```python
+MY_EVA_CONFIG = {
+    "base_url": "https://api.deepseek.com/v1",   # empty -> built-in default
+    "model_name": "deepseek-v4-flash",           # empty -> built-in default
+    "api_key": "sk-xxxxxxxxxxxxxxxx",            # required
+}
+```
+
+**Option B — external `eva_config.json` next to `eva.py`.** Useful because `git pull` overwrites `eva.py` but not this file. A missing or malformed file is ignored with a warning.
+
+```json
+{
+  "base_url": "https://api.deepseek.com/v1",
+  "model_name": "deepseek-v4-flash",
+  "api_key": "sk-xxxxxxxxxxxxxxxx"
+}
+```
+
+**Option C — environment variables (highest priority, per-shell override).**
+
+Precedence: **environment variables > `eva_config.json` > `MY_EVA_CONFIG` in `eva.py` > built-in defaults**. Run `python eva.py --show-config` to print the effective values and their sources (the API key is masked).
 
 ### Linux and macOS
 
@@ -102,7 +126,7 @@ On Windows, run EVA with `python eva.py`.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `EVA_API_KEY` | none | Required bearer token sent to the configured endpoint. |
+| `EVA_API_KEY` | none | Bearer token sent to the configured endpoint. Required unless set in `MY_EVA_CONFIG` or `eva_config.json`. |
 | `EVA_BASE_URL` | `https://api.deepseek.com/v1` | Base URL used for the `/models` and `/chat/completions` requests. |
 | `EVA_MODEL_NAME` | `deepseek-v4-flash` | Model ID that must appear in the endpoint's `/models` response. |
 | `EVA_HOME` | `<directory containing eva.py>/.eva` | Storage location for EVA's persistent instructions and saved sessions. |
@@ -183,12 +207,13 @@ python3 eva.py --clear-session
 | `-u TEXT`, `--user-ask TEXT` | Run one request supplied on the command line. |
 | `-s`, `--with-session` | With `-u`, load and save the current directory session. |
 | `-g`, `--goal` | With `-u`, continue until EVA declares the task complete. |
+| `--show-config` | Print the effective API settings and their sources (API key masked), then exit. |
 
 ## Troubleshooting
 
-### "EVA_API_KEY environment variable is not set"
+### "No API key configured"
 
-Set `EVA_API_KEY` in the same terminal session before launching EVA. EVA exits immediately if this variable is missing.
+EVA exits immediately when no API key is available. Provide one by editing `MY_EVA_CONFIG` in `eva.py`, creating `eva_config.json` next to `eva.py`, or setting `EVA_API_KEY` in the same terminal session before launching EVA.
 
 ### EVA cannot connect to the API endpoint
 
