@@ -67,100 +67,12 @@ SHELL_FLAG = "-Command" if IS_WINDOWS else "-c"
 
 # ========================= LLM配置区 =========================
 # LLM请求参数是按thinking模型设置的，所以请务必使用*thinking模型*，如deepseek-reasoner、Qwen3.5等
-#
-# ---------------------------------------------------------------------------
-# ★ API 配置方式（三选一，优先级从高到低）★
-#   1. 环境变量：EVA_BASE_URL / EVA_MODEL_NAME / EVA_API_KEY
-#      —— 优先级最高，用于临时覆盖，仅对当前终端会话生效
-#   2. 外部文件：与 eva.py 同目录的 eva_config.json
-#      —— 可选。好处是 git pull 更新 eva.py 时配置不会被覆盖
-#   3. 文件内常量：直接填写下面的 MY_EVA_CONFIG
-#      —— 推荐。改一次即永久生效，之后无需每次启动前重新 export
-#
-#   注意：
-#   - base_url 结尾的斜杠会被自动去掉（EVA 内部会拼接 /models、/chat/completions）
-#   - model_name 必须是 {base_url}/models 接口返回的模型 ID 之一
-#   - 运行 python eva.py --show-config 可查看当前生效配置及其来源
-# ---------------------------------------------------------------------------
-MY_EVA_CONFIG = {
-    # 接口地址，留空则使用内置默认值 "https://api.deepseek.com/v1"
-    "base_url": "",
-    # 模型 ID，留空则使用内置默认值 "deepseek-v4-flash"
-    "model_name": "",
-    # API Key，必填（上述三种方式任意一种提供即可）
-    "api_key": "",
-}
-
-DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
-DEFAULT_MODEL_NAME = "deepseek-v4-flash"
-CONFIG_FILE = os.path.join(this_dir, "eva_config.json")
-
-def _load_eva_config():
-    """按 环境变量 > eva_config.json > eva.py 文件内常量 > 内置默认值 的顺序解析配置，
-    并逐项记录来源，便于 --show-config 排查。"""
-    external = {}
-    cfg_path = Path(CONFIG_FILE)
-    if cfg_path.exists():
-        try:
-            raw = json.loads(cfg_path.read_text(encoding="utf-8"))
-            if isinstance(raw, dict):
-                external = {
-                    k: str(v).strip()
-                    for k, v in raw.items()
-                    if isinstance(v, (str, int, float))
-                }
-        except Exception as e:
-            print(f"警告：读取外部配置文件 {CONFIG_FILE} 失败（{e}），已忽略该文件。")
-
-    sources = {}
-
-    def pick(env_key, cfg_key, default=""):
-        for value, source in (
-            (os.environ.get(env_key), "环境变量"),
-            (external.get(cfg_key), "eva_config.json"),
-            (MY_EVA_CONFIG.get(cfg_key), "eva.py 文件内常量"),
-        ):
-            if value and str(value).strip():
-                value = str(value).strip()
-                if cfg_key == "base_url":
-                    value = value.rstrip("/")
-                sources[cfg_key] = source
-                return value
-        sources[cfg_key] = "内置默认值" if default else "未配置"
-        return default
-
-    return (
-        pick("EVA_BASE_URL", "base_url", DEFAULT_BASE_URL),
-        pick("EVA_MODEL_NAME", "model_name", DEFAULT_MODEL_NAME),
-        pick("EVA_API_KEY", "api_key"),
-        sources,
-    )
-
-EVA_BASE_URL, EVA_MODEL_NAME, EVA_API_KEY, CONFIG_SOURCES = _load_eva_config()
-
-def _mask_key(key):
-    """脱敏展示 API Key，避免明文出现在终端或日志中"""
-    if not key:
-        return "(空)"
-    if len(key) <= 10:
-        return key[0] + "*" * (len(key) - 1)
-    return f"{key[:6]}{'*' * 8}{key[-4:]}"
-
-def show_config():
-    """打印当前生效的 API 配置及来源"""
-    print("当前生效的 API 配置：")
-    print(f"  base_url   : {EVA_BASE_URL}\t← 来源：{CONFIG_SOURCES['base_url']}")
-    print(f"  model_name : {EVA_MODEL_NAME}\t← 来源：{CONFIG_SOURCES['model_name']}")
-    print(f"  api_key    : {_mask_key(EVA_API_KEY)}\t← 来源：{CONFIG_SOURCES['api_key']}")
-    print(f"  外部配置文件：{CONFIG_FILE}"
-          f"（{'已存在' if Path(CONFIG_FILE).exists() else '不存在，可选用'}）")
-
+# 想免去每次设置环境变量？直接把下面三项引号内的值改成你的配置即可；若设置了同名环境变量，则环境变量优先
+EVA_BASE_URL = os.environ.get("EVA_BASE_URL") or "https://api.deepseek.com/v1"
+EVA_MODEL_NAME = os.environ.get("EVA_MODEL_NAME") or "deepseek-v4-flash"
+EVA_API_KEY = os.environ.get("EVA_API_KEY") or ""   # API Key 填入此处引号内
 if not EVA_API_KEY:
-    print("错误：未配置 API Key。请任选一种方式配置后重试：")
-    print("  1) 编辑 eva.py 顶部的 MY_EVA_CONFIG['api_key']（推荐，一次填写永久生效）")
-    print(f"  2) 在 {CONFIG_FILE} 中写入：")
-    print("     {\"base_url\": \"https://api.deepseek.com/v1\", \"model_name\": \"deepseek-v4-flash\", \"api_key\": \"sk-xxxxxx\"}")
-    print("  3) 设置环境变量 EVA_API_KEY（仅对当前终端会话生效）")
+    print("错误：未设置 EVA_API_KEY 环境变量，也未在 eva.py 中填入 API Key")
     sys.exit(1)
 
 COMMON_HEADER = {"User-Agent": "EVA", "Authorization": f"Bearer {EVA_API_KEY}"}
@@ -1048,16 +960,11 @@ def main():
                         help="搭配-u使用，载入并保存session")
     parser.add_argument("-g", "--goal", action="store_true",
                         help="goal模式，循环直到达成目标")
-    parser.add_argument("--show-config", action="store_true",
-                        help="显示当前生效的 API 配置及其来源（API Key 脱敏后显示），随后退出")
     args = parser.parse_args()
 
     ALLOW_ALL_CLI = args.allow_all
 
     # 处理会话管理命令
-    if args.show_config:
-        show_config()
-        return
     if args.list_session:
         list_sessions()
         return
@@ -1074,9 +981,6 @@ def main():
     print("=" * 80)
     logo = f"EVA ({EVA_MODEL_NAME}-{TOKEN_CAP//1000}k)"
     print(" " * ((78-len(logo))//2), logo, "\n")
-    print(f"\033[2m> 接口配置：{EVA_BASE_URL} | {EVA_MODEL_NAME} | {_mask_key(EVA_API_KEY)}"
-          f"（来源：{CONFIG_SOURCES['base_url']}/{CONFIG_SOURCES['model_name']}/{CONFIG_SOURCES['api_key']}，"
-          f"详情见 --show-config）\033[0m")
     print("> 命令模式：所有命令【无需确认】，直接执行！！" if ALLOW_ALL_CLI else "> 命令模式：默认执行【只读】命令，其他命令需要人工确认")
     print("=" * 80)
 

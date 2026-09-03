@@ -54,37 +54,9 @@ EVA是个麻雀虽小、五脏俱全的Agent智能体，相当于低配版Claude
 
 0. 直接创建一个eva.py并复制本仓库的eva.py文本内容粘贴进去（docker环境、运维环境等也很容易粘贴代码，无需复杂安装，Just **Paste and Go**）。当然，你也可以git clone本仓库。
 
-1. 配置 API 信息（三选一，优先级从高到低）
+1. 在终端执行`export EVA_API_KEY=你的deepseek API key`（Windows系统则是`set`命令）
 
-EVA支持OpenAI接口形式的LLM，可以是Ollma、vLLM拉起的本地模型，也可以是DeepSeek、OpenAI等官网API。需要配置三项：`EVA_BASE_URL`, `EVA_MODEL_NAME`, `EVA_API_KEY`。
-
-**方式A（推荐）：直接写进 eva.py，一次配置永久生效**
-
-用编辑器打开`eva.py`，找到文件顶部的`MY_EVA_CONFIG`，把值填进去即可，之后每次运行都不需要再配置：
-
-```python
-MY_EVA_CONFIG = {
-    "base_url": "https://api.deepseek.com/v1",   # 留空则用内置默认地址
-    "model_name": "deepseek-v4-flash",           # 留空则用内置默认模型
-    "api_key": "sk-xxxxxxxxxxxxxxxx",            # 必填
-}
-```
-
-**方式B：外部配置文件 eva_config.json**
-
-在`eva.py`同目录新建`eva_config.json`：
-
-```json
-{
-  "base_url": "https://api.deepseek.com/v1",
-  "model_name": "deepseek-v4-flash",
-  "api_key": "sk-xxxxxxxxxxxxxxxx"
-}
-```
-
-好处是`git pull`更新`eva.py`时配置不会被覆盖；文件不存在或格式错误时会自动忽略并给出提示。
-
-**方式C：环境变量（临时覆盖，优先级最高）**
+EVA支持OpenAI接口形式的LLM，可以是Ollma、vLLM拉起的本地模型，也可以是DeepSeek、OpenAI等官网API。切换方法是设置`EVA_BASE_URL`, `EVA_MODEL_NAME`, `EVA_API_KEY`这三个环境变量：
 
 Linux设置方法：
 
@@ -118,9 +90,13 @@ $env:EVA_MODEL_NAME="xxxxx"
 $env:EVA_API_KEY="sk-xxxxx"
 ```
 
-> 配置优先级：**环境变量 > eva_config.json > eva.py 内的 MY_EVA_CONFIG > 内置默认值**。
-> 三种方式可以混用，例如把常驻配置写进 `eva.py`，偶尔用环境变量临时切换模型。
-> 启动时横幅会显示当前生效的配置及来源，也可以运行 `python eva.py --show-config` 查看（API Key 会脱敏显示）。
+> **不想每次设置环境变量？** 也可以直接把配置写入`eva.py`：打开文件顶部「LLM配置区」，将`EVA_BASE_URL`、`EVA_MODEL_NAME`、`EVA_API_KEY`三行引号内的值改成你的配置即可，无需在终端执行export。默认使用 DeepSeek 官方接口，通常你只需要填写`EVA_API_KEY`一行，例如：
+>
+> ```python
+> EVA_API_KEY = os.environ.get("EVA_API_KEY") or "sk-xxxxx"   # ← 在此填入你的 API Key
+> ```
+>
+> 若已通过上方环境变量方式配置，则以环境变量为准（文件内配置仅作兜底）。
 
 2. 运行`python3 eva.py`。首次运行会生成`eva`脚本，Linux 下执行`source ~/.bashrc`让脚本生效；macOS 下执行`source ~/.zshrc`让脚本生效。后续直接输入命令`eva`即可
 
@@ -145,7 +121,6 @@ options:
                         独立地针对一条用户提问执行EVA
   -s, --with-session    搭配-u使用，载入并保存session
   -g, --goal            goal模式，循环直到达成目标
-  --show-config         显示当前生效的 API 配置及其来源（API Key 脱敏后显示），随后退出
 ```
 
 绝大部分同学都带上-a来启动eva，虽然很方便，但要对eva行为多加关注下。
