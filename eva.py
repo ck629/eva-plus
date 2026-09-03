@@ -67,11 +67,12 @@ SHELL_FLAG = "-Command" if IS_WINDOWS else "-c"
 
 # ========================= LLM配置区 =========================
 # LLM请求参数是按thinking模型设置的，所以请务必使用*thinking模型*，如deepseek-reasoner、Qwen3.5等
-EVA_BASE_URL = os.environ.get("EVA_BASE_URL", "https://api.deepseek.com/v1")
-EVA_MODEL_NAME = os.environ.get("EVA_MODEL_NAME", "deepseek-v4-flash")
-EVA_API_KEY = os.environ.get("EVA_API_KEY")
+# 想免去每次设置环境变量？直接把下面三项引号内的值改成你的配置即可；若设置了同名环境变量，则环境变量优先
+EVA_BASE_URL = os.environ.get("EVA_BASE_URL") or "https://api.deepseek.com/v1"
+EVA_MODEL_NAME = os.environ.get("EVA_MODEL_NAME") or "deepseek-v4-flash"
+EVA_API_KEY = os.environ.get("EVA_API_KEY") or ""   # API Key 填入此处引号内
 if not EVA_API_KEY:
-    print("错误：未设置 EVA_API_KEY 环境变量")
+    print("错误：未设置 EVA_API_KEY 环境变量，也未在 eva.py 中填入 API Key")
     sys.exit(1)
 
 COMMON_HEADER = {"User-Agent": "EVA", "Authorization": f"Bearer {EVA_API_KEY}"}

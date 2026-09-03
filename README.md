@@ -90,6 +90,14 @@ $env:EVA_MODEL_NAME="xxxxx"
 $env:EVA_API_KEY="sk-xxxxx"
 ```
 
+> **不想每次设置环境变量？** 也可以直接把配置写入`eva.py`：打开文件顶部「LLM配置区」，将`EVA_BASE_URL`、`EVA_MODEL_NAME`、`EVA_API_KEY`三行引号内的值改成你的配置即可，无需在终端执行export。默认使用 DeepSeek 官方接口，通常你只需要填写`EVA_API_KEY`一行，例如：
+>
+> ```python
+> EVA_API_KEY = os.environ.get("EVA_API_KEY") or "sk-xxxxx"   # ← 在此填入你的 API Key
+> ```
+>
+> 若已通过上方环境变量方式配置，则以环境变量为准（文件内配置仅作兜底）。
+
 2. 运行`python3 eva.py`。首次运行会生成`eva`脚本，Linux 下执行`source ~/.bashrc`让脚本生效；macOS 下执行`source ~/.zshrc`让脚本生效。后续直接输入命令`eva`即可
 
 输入增强说明：
